@@ -1,0 +1,172 @@
+(defun pertenece (A L)
+    (if (null L)
+        nil
+        ( if (eq A (car L))
+            T
+            (pertenece A (cdr L))
+        )
+    )
+)
+
+(defun diferencia (a b)
+    (if (null a)
+        nil
+        (if (null b)
+            a
+            (if (pertenece (car a) b)
+                (diferencia (cdr a) b)
+                (cons (car a) (diferencia (cdr a) b))
+            )
+        )
+    )
+)
+
+(defun obtenerMinimo (L)
+    (if (eq (length L) 1)
+        (car L)
+        (if (null (car L) )
+            (obtenerMinimo (cdr L) )
+            (if (< (length (car L)) (length (cadr L)) )
+                (obtenerMinimo (cons (car L) (cddr L)) )
+                (obtenerMinimo (cdr L) )
+            )
+        )
+    )
+)
+
+(defun obtenerMaximo (L)
+    (if (eq (length L) 1)
+        (car L)
+        (if (null (car L) )
+            (obtenerMaximo (cdr L) )
+            (if (< (length (car L)) (length (cadr L)) )
+                (obtenerMaximo (cdr L) )
+                (obtenerMaximo (cons (car L) (cddr L)) )
+            )
+        )
+    )
+)
+
+(defun vecinos (actual L)
+    (if (null L)
+        nil
+        ( if (eq actual (caar L))
+            (cadar L)
+            (vecinos actual (cdr L))
+        )
+    )
+)
+
+(defun distribuir (cam vec)
+    (if (null vec)
+        nil
+        (cons (cons (car vec) cam) (distribuir cam (cdr vec)))
+    )
+)
+
+(defun GPS (i f &optional(caminos (list( list i))) )
+	(if (null caminos)
+		nil
+		(if (eq (caar caminos) f)
+			(cons (car caminos) (GPS i f (cdr caminos) ) )
+; mapcar '(lambda (x) (cons x (car caminos)))
+			(GPS i f (append (distribuir(car caminos)
+                                (diferencia (vecinos (caar caminos) grafo) (car caminos))
+                             )
+                            (cdr caminos)
+                     )
+            )
+		)
+	)
+)
+
+(defun caminoMinimo (i f)
+    ( obtenerMinimo (GPS i f) )
+)
+
+(defun caminoMaximo (i f)
+    ( obtenerMaximo (GPS i f) )
+)
+
+(defun traductor ( c diccionario)
+    (if (null diccionario)
+        nil
+        ( if (eq c (caar diccionario))
+            (cadar diccionario)
+            (traductor c (cdr diccionario))
+        )
+    )
+)
+
+(defun traductorList ( L diccionario)
+    (if (eq (length L) 1)
+        (traductor (car L) diccionario )
+        ( cons (traductor (car L) diccionario ) (traductorList (cdr L) diccionario ) )
+    )
+)
+
+(defun codificador ( term diccionario)
+    (if (null diccionario)
+        nil
+        ( if (eq term (cadar diccionario))
+            (caar diccionario)
+            (codificador term (cdr diccionario))
+        )
+    )
+)
+
+(setq grafo '((a(b c)) (b(a e d)) (c(a d e)) (d(b c e)) (e(e b d)) ) )
+
+( if (equal (diferencia '(a b) nil) '(a b)) '(diferenciaNull Pass) '(diferenciaNull Fail)) 
+( if (equal (diferencia '(a b c) '(b)) '(a c)) '(diferenciaOneElement Pass) '(diferenciaOneElement Fail))
+( if (equal (diferencia '(a b c) '(a c)) '(b)) '(diferenciaMoreElements Pass) '(DiferenciaMoreElements Fail))
+
+( if (equal (obtenerMinimo '((a) (b) nil (c)) ) '(c) ) '(obtenerMinimoEqualsAndNil Pass) '(obtenerMinimoEqualsAndNil Fail)) 
+( if (equal (obtenerMinimo '((a b c) (a b)) ) '(a b) ) '(obtenerMinimoLast Pass) '(obtenerMinimoLast Fail)) 
+( if (equal (obtenerMinimo '((a b) (a b c)) ) '(a b) ) '(obtenerMinimoFirst Pass) '(obtenerMinimoFirst Fail))
+( if (equal (obtenerMinimo '((a b c) (a b) (a b c d)) ) '(a b) ) '(obtenerMinimoMiddle Pass) '(obtenerMinimoMiddle Fail))
+
+( if (equal (obtenerMaximo '((a) (b) nil (c)) ) '(a) ) '(obtenerMaximoEqualsAndNil Pass) '(obtenerMaximoEqualsAndNil Fail)) 
+( if (equal (obtenerMaximo '((a b c) (a b)) ) '(a b c) ) '(obtenerMaximoFirst Pass) '(obtenerMaximoFirst Fail)) 
+( if (equal (obtenerMaximo '((a b) (a b c)) ) '(a b c) ) '(obtenerMaximoLast Pass) '(obtenerMaximoLast Fail))
+( if (equal (obtenerMaximo '((a b) (a b c) (a)) ) '(a b c) ) '(obtenerMaximoMiddle Pass) '(obtenerMaximoMiddle Fail))
+
+( if (equal (vecinos 'a nil) 'nil) '(vecinosNull Pass) '(vecinosNull Fail))
+( if (equal (vecinos 'a '((a(b c)) (b(a e d)) )) '(b c)) '(vecinosFirst Pass) '(vecinosFirst Fail))
+( if (equal (vecinos 'c '((a(b c)) (c(a d e)) (b(e b d)) )) '(a d e)) '(vecinosMiddle Pass) '(vecinosMiddle Fail))
+( if (equal (vecinos 'b '((a(b c)) (c(a d e)) (b(e b d)) )) '(e b d)) '(vecinosLast Pass) '(vecinosLast Fail))
+
+( if (equal (GPS 'a 'e ) '((E B A) (E C D B A) (E D B A) (E B D C A) (E D C A) (E C A))) '(GPS Pass) '(GPS Fail))
+( if (equal (GPS 'a 'w ) 'nil) '(GPSFinalNotExist Pass) '(GPSFinalNotExist Fail))
+( if (equal (GPS 'w 'a ) 'nil) '(GPSInitialNotExist Pass) '(GPSInitialNotExist Fail))
+
+( if (equal (caminoMaximo 'a 'e ) '(E C D B A)) '(caminoMaximo Pass) '(caminoMaximo Fail))
+( if (equal (caminoMinimo 'a 'e ) '(E C A)) '(caminoMinimo Pass) '(caminoMinimo Fail))
+
+(setq grafo '(
+        (a(b f)) (b(a c )) (c(b d)) (d(c e)) (e(d l))
+         (f(g))                              (l(k))
+         (g(h))  (h(i))    (i(c j)) (j(d k)) (k())
+             ) 
+)
+
+(setq diccionario '(
+                        (a PaseoColonEIndependencia)
+                        (b PaseoColonYChile)
+                        (c PaseoColonYMexico )
+                        (d PaseoColonYVenezuela)
+                        (e PaseoColonYBelgrano)
+                        (f IndependenciaYBalcarse)
+                        (g IndependenciaYdefensa)
+                        (h DefensaYChile)
+                        (i DefensaYMexico)
+                        (j DefensaYVenezuela)
+                        (k DefensaYBalcarse )
+                        (l BelgranoYBalcarse) 
+                   ) 
+)
+(GPS (codificador 'PaseoColonEIndependencia diccionario) (codificador 'PaseoColonYBelgrano diccionario) )
+(traductorList (caminoMinimo (codificador 'PaseoColonEIndependencia diccionario) (codificador 'PaseoColonYBelgrano diccionario)) diccionario)
+(traductorList (caminoMaximo (codificador 'PaseoColonEIndependencia diccionario) (codificador 'PaseoColonYBelgrano diccionario)) diccionario)
+
+
