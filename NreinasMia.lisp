@@ -1,3 +1,9 @@
+; Problema : N reinas, solución propia.
+; Explicación : Esta solución está basada en validar cada reina individualmente contra el resto, esto hace que solo se mantenga en memoria la solución actual, ni siquiera se mantiene el tablero, solo la fila actual de donde se quiere sacar la nueva reina.
+; Lenguajes Formales - Primer Cuatrimestre 2010
+; Alumno : Bello Camilletti, Nicolás.
+; Padrón : 86676
+
 (defun validarReinaColFil (reina nuevaReina)
     (if (eq (car reina) (car nuevaReina))
         nil
