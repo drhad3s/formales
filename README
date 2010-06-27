@@ -1,0 +1,7 @@
+Tps de formales
+GPS.lisp -> GPS
+NreinasMias.lisp -> mi solución del de N reinas
+NReinasProfesora.lisp -> solución de la profesora del problema de la N reinas, con algunas modificaciones
+PatterMatching.lisp -> Patter matching sin terminar dado por la profesora
+InterpreteC.lisp -> interprete de C dado por la profesora
+LispInLisp.lisp -> interprete de lisp en lisp dado por la profesora
