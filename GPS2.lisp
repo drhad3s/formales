@@ -38,6 +38,7 @@
     )
 )
 
+; obtiene todos los caminos posibles de i a f en el grafo
 (defun GPS (i f grafo &optional(caminos (list( list i))) )
 	(if (null caminos)
 		nil
@@ -126,6 +127,7 @@
     )
 )
 
+; obtiene cual es el comun entre 2 esquinas, para saber por cual calle va.
 (defun obtenerComun (term otroTerm)
     (if (null otroTerm)
         (car term)
@@ -139,6 +141,7 @@
     )
 )
 
+; obtiene el comun de los 2 primeros del recorrido
 (defun obtenerComunPrimeros (recorrido )
     (if (null recorrido)
         nil
@@ -148,6 +151,7 @@
         )
     )
 )
+
 
 (defun crearNuevoActual (recorrido)
     (list (obtenerComunPrimeros recorrido) 1)
@@ -164,6 +168,7 @@
     )
 )
 
+; comprime el recorrido generando pares calle por la que va, cantidad de cuadras.
 (defun comprimirRecorrido (recorrido &optional (result nil) 
                                         ( actual (list (obtenerComunPrimeros recorrido) 0)) )
 	(if (null recorrido)
@@ -176,17 +181,18 @@
 )
 
 (defun armarDescripcion (actual)
-    (list 'luego 'gire 'en (car actual) 'y 'avance (cadr actual) 'cuadras)
+    (list 'luego 'gire 'en (car actual) 'y 'avance (cadr actual) 'cuadras.)
 )
 
+; Genera la descripción del circuito basado en el recorrido comprimido
 (defun describir (rec &optional (desc nil))
 	(if (null rec)
-        (agregarAlFinal desc '(hasta llegar a destino.))
+        (append desc '(hasta llegar a destino.))
         (if (null desc)
-            (describir (cdr rec) (agregarAlFinal desc (list 'Tome (caar rec) 'y 'avance (cadar rec) 'cuadras) ) )
+            (describir (cdr rec) (list 'Tome (caar rec) 'y 'avance (cadar rec) 'cuadras.) )
             (if (eq (cadar rec) 1)
-                (describir (cdr rec) (agregarAlFinal desc (list 'Tome (caar rec) 'y 'avance 'una 'cuadra) ) )
-		        (describir (cdr rec) (agregarAlFinal desc (armarDescripcion (car rec)) ) )
+                (describir (cdr rec) (append desc (list 'Doble 'en (caar rec) 'y 'avance 'una 'cuadra.) ) )
+		        (describir (cdr rec) (append desc (armarDescripcion (car rec)) ) )
             )
         )
 	)

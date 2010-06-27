@@ -35,41 +35,23 @@
     )
 )
 
-(defun generarDiag1 (diag N) 
+(defun generarDiagIzq (diag N) 
     (if (estaAdentro (car diag) N)
-        (generarDiag1 (cons (list (- (caar diag) '1) (- (cadar diag) '1) ) diag) N)
+        (generarDiagIzq (cons (list (- (caar diag) '1) (- (cadar diag) '1) ) diag) N)
         (cdr diag)
     )
 )
 
-(defun generarDiag2 (diag n)
+(defun generarDiagDer (diag n)
     (if (estaAdentro (car diag) N)
-        (generarDiag2 (cons (list (- (caar diag) '1) (+ (cadar diag) '1) ) diag) N)
-        (cdr diag)
-    )
-)
-
-(defun generarDiag3 (diag n)
-    (if (estaAdentro (car diag) N)
-        (generarDiag3 (cons (list (+ (caar diag) '1) (+ (cadar diag) '1) ) diag) N)
-        (cdr diag)
-    )
-)
-
-(defun generarDiag4 (diag n)
-    (if (estaAdentro (car diag) N)
-        (generarDiag4 (cons (list (+ (caar diag) '1) (- (cadar diag) '1) ) diag) N)
+        (generarDiagDer (cons (list (- (caar diag) '1) (+ (cadar diag) '1) ) diag) N)
         (cdr diag)
     )
 )
 
 (defun generarDiagonales (nuevaReina n ) 
-    (append (generarDiag1 (list nuevaReina) n) 
-        (append (generarDiag2 (list nuevaReina) n)
-            (append (generarDiag3 (list nuevaReina) n)
-                (generarDiag4 (list nuevaReina) n)
-            )
-        )
+    (append (generarDiagIzq (list nuevaReina) n) 
+        (generarDiagDer (list nuevaReina) n)
     )
 )
 
@@ -134,23 +116,6 @@
     )
 )
 
-;(defun reinasaux (n posreinas)
-;    (reinas n (agregarReina (cdr posreinas)  (crearFila N (caar posreinas) (+(cadar posreinas) 1) ) n ) )
-;)
-
-;(defun Reinas (N &optional (posreinas (list (car (crearFila N))) ) )
-;    (If (null (car posreinas))
-;        (reinasaux N  (buscarLong2oMas (cdr posreinas) N))
-;        (if (eq (length posreinas) N) 
-;            (reverse posreinas)
-;	        (if (< (length posreinas) (caar posreinas))  ;me pase
-;                (reinasaux N (buscarLong2oMas posreinas) N)
-;                (Reinas N (agregarReina posreinas (crearFila N (+(length posreinas) 1) ) N ) )
-;            )
-;        )
-;    )
-;)
-
 (defun ReinasAux (N posreinas )
     (If (null (car posreinas))
         posreinas
@@ -189,7 +154,7 @@
 )
 
 (defun Reinas (N )
-    (reverse (ReverseReinas N ))
+    (print (reverse (ReverseReinas N )))
 )
 
 ;(trace validarReinaColFil)
@@ -198,7 +163,6 @@
 ;(trace reinasaux)
 ;(trace checkIfHaveToGoBack)
 ;(trace buscarLong2oMas)
-;(buscarLong2oMas '(((1 4)) ((2 3) (2 4))) 4)
 ;(reinas 4)
 ;(reinas 5)
 ;(reinas 6)
@@ -208,6 +172,5 @@
 ;(reinas 10)
 (reinas 13)
 ;(reinas 14) ; empieza a tomarse mas tiempo
-(reinas 17) ; maximo antes de overflow
-;(reinas 18)
+;(reinas 17) ; maximo antes de overflow
 ;(reinas 20)
