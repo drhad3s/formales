@@ -1,3 +1,8 @@
+; Problema : GPS.
+; Lenguajes Formales - Primer Cuatrimestre 2010
+; Alumno : Bello Camilletti, Nicolás.
+; Padrón : 86676
+
 (defun pertenece (A L)
     (if (null L)
         nil
