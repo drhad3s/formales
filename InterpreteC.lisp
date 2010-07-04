@@ -4,7 +4,7 @@
     (if (null listaPares)
         nil
         (if (equal elemento (caar listaPares) )
-            (cdar listaPares)
+            (cadar listaPares)
             (buscar elemento (cdr listaPares))
         )
     )
