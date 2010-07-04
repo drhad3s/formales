@@ -4,7 +4,7 @@
 )
 
 (defun esAsignacion (expr memoria)
-	(if (esVariable (car expr) memoria) 
+	(if (esVariable (car expr) memoria)
         t
 		(and (or (equal (car expr) '++) (equal (car expr) '--)) 
             (esVariable (cadr expr) memoria)
@@ -101,6 +101,8 @@
 		((equal el '>) t)
 		((equal el '<=) t)
 		((equal el '>=) t)
+        ((equal el 'and) t)
+		((equal el 'or) t)
 		( t nil)
 	)
 )
@@ -141,7 +143,7 @@
 			)
 			(if (atom (car expr))
 				(inf_a_pref (cdr expr) ops (cons (car expr) vars))
-				(inf_a_pref (cdr expr) ops (cons (car (inf_a_pref (car expr) nil nil)) vars))
+				(inf_a_pref (cdr expr) ops (cons (car (inf_a_pref (car expr))) vars))
 			)
 		)	
 	)
@@ -286,6 +288,13 @@
     (ejecutar (cdr prg) mem entrada (append salida (list (evaluar (cdar prg) mem))) )
 )
 
+(defun procesar_varDef (prg mem entrada salida)
+    (if (pertenece_ListaPares(cadar prg) mem)
+        'Error
+        (ejecutar (cdr prg) (agregar_Var_A_Mem (cdar prg) mem) entrada salida)
+    )
+)
+
 ;------ Fin Funciones auxiliares para ejecutar ------
 
 (defun ejecutar (prg mem &optional (entrada nil) (salida nil))
@@ -294,7 +303,7 @@
 		(cond
 			( (esFuncion prg 'scanf) (procesar_scanf prg mem entrada salida) )
 			( (esFuncion prg 'printf) (procesar_printf prg mem entrada salida) )
-            ( (isVarDef prg) (ejecutar (cdr prg) (agregar_Var_A_Mem (cdar prg) mem) entrada salida) )
+            ( (isVarDef prg) (procesar_varDef prg mem entrada salida) )
 			( (esAsignacion (car prg) mem) (ejecutar (cdr prg) (asignacion (car prg) mem) entrada salida) )
 			( (esFuncion prg 'if) (procesar_if prg mem entrada salida) )
 			( (esFuncion prg 'while) (procesar_while prg mem entrada salida) )
@@ -325,11 +334,85 @@
 )
 
 '(----- Inicio tests -----)
+(test 'Buscar_En_Memoria_Esta_Solo
+    (buscar 'a '((a 2)))
+    '2
+)
+
+(test 'Buscar_En_Memoria_Esta_Con_Otro
+    (buscar 'a '( (b 3) (a 2)))
+    '2
+)
+
+(test 'Buscar_En_Memoria_No_Esta
+    (buscar 'c '( (b 3) (a 2)))
+    nil
+)
+
+(test 'Pertenece_ListaPares_Esta_Solo
+    (pertenece_ListaPares 'a '((a 2)))
+    t
+)
+
+(test 'Pertenece_ListaPares_Esta_Con_Otro
+    (pertenece_ListaPares 'a '( (b 3) (a 2)))
+    t
+)
+
+(test 'Pertenece_ListaPares_No_Esta
+    (pertenece_ListaPares 'c '( (b 3) (a 2)))
+    nil
+)
+
+(test 'Modificar_Esta_Solo
+    (modificar_Valor_Var_En_Mem 'a 5 '( (a 2)))
+    '( (a 5))
+)
+
+(test 'Modificar_Esta_Con_Otro
+    (modificar_Valor_Var_En_Mem 'a 5 '( (b 3) (a 2)))
+    '( (b 3) (a 5))
+)
+
+(test 'Modificar_No_Esta
+    (modificar_Valor_Var_En_Mem 'c 2 '( (b 3) (a 2)))
+    '( (b 3) (a 2))
+)
+
+(test 'Agregar_No_Esta
+    (agregar_Var_A_Mem '(c = 2) '( (b 3) (a 2)))
+    '( (c 2) (b 3) (a 2))
+)
+
+(test 'Agregar_Esta
+    (agregar_Var_A_Mem '(a = 4) '( (b 3) (a 2)))
+    '( (a 4) (b 3) (a 2))
+)
+
+(test 'var_def_ok 
+    (isVarDef '((int i)) )
+    t
+)
+
+(test 'var_def_no_name 
+    (isVarDef '((int)) )
+    nil
+)
+
+(test 'var_def_no_type 
+    (isVarDef '((i)) )
+    nil
+)
+
+(test 'var_def_wrong_type 
+    (isVarDef '((integer i)) )
+    nil
+)
 
 '(----- Fin tests -----)
 
 '(----- Ejecución completa -----)
-'(La salida debe ser "hola_moncho" "cond_true" 21 A B 12)
+'(La salida debe ser "hola" "cond_true" 21 A B 12)
 
 (run '(
 	    (int n j = 10 i k)
@@ -343,8 +426,8 @@
 		    )
 		    (-- i)
 		    (i --)
-		    (printf "hola_moncho")
-		    (if (1) (printf "cond_true") else (printf "cond_false"))
+		    (printf "hola")
+		    (if (1 && 2) (printf "cond_true") else (printf "cond_false"))
 		    (printf (i + 1))
 		    (scanf n)
 		    (printf n)
@@ -354,8 +437,8 @@
 		    (printf k)
 		    )
 	    )
-    )
-    '(A B)
+    ) ;codigo
+    '(A B) ;entrada
 )
 
 
