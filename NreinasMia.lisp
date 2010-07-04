@@ -1,95 +1,29 @@
-; Problema : N reinas, solución propia.
+; Problema : N reinas, solución propia.(Llega a 17 reinas. Apartir de las 14, funciona mas lento)
 ; Explicación : Esta solución está basada en validar cada reina individualmente contra el resto, esto hace que solo se mantenga en memoria la solución actual, ni siquiera se mantiene el tablero, solo la fila actual de donde se quiere sacar la nueva reina.
 ; Lenguajes Formales - Primer Cuatrimestre 2010
 ; Alumno : Bello Camilletti, Nicolás.
 ; Padrón : 86676
 
-(defun validarReinaColFil (reina nuevaReina)
+(defun validarReinaColFilDiag (reina nuevaReina)
     (if (eq (car reina) (car nuevaReina))
         nil
         (if (eq (cadr reina) (cadr nuevaReina))
             nil
-            T
+            (if (or (eq (apply '+ reina) (apply '+ nuevaReina))
+                    (eq (apply '- reina) (apply '- nuevaReina)))
+                nil
+                T
+            )
         )
     )
 )
 
-(defun validarReinasColFil (reinas nuevaReina)
-    (if (null reinas)
-        nil
-        (cons (validarReinaColFil (car reinas) nuevaReina ) (validarReinasColFil (cdr reinas) nuevaReina) )
-    )
-)
-
-(defun ListaValida (L)
-    (if (null L)
-        T
-        (if (car L) 
-            ( ListaValida ( cdr L))
-            nil
-        )
-    )
-)
-
-(defun estaAdentro (nodo N)
-    (if (and (> (car nodo) 0) (<= (car nodo) N) )
-        (if (and (> (cadr nodo) 0) (<= (cadr nodo) N))
-            T
-            nil
-        )
-        nil
-    )
-)
-
-(defun generarDiagIzq (diag N) 
-    (if (estaAdentro (car diag) N)
-        (generarDiagIzq (cons (list (- (caar diag) '1) (- (cadar diag) '1) ) diag) N)
-        (cdr diag)
-    )
-)
-
-(defun generarDiagDer (diag n)
-    (if (estaAdentro (car diag) N)
-        (generarDiagDer (cons (list (- (caar diag) '1) (+ (cadar diag) '1) ) diag) N)
-        (cdr diag)
-    )
-)
-
-(defun generarDiagonales (nuevaReina n ) 
-    (append (generarDiagIzq (list nuevaReina) n) 
-        (generarDiagDer (list nuevaReina) n)
-    )
-)
-
-(defun pertenece (elemento lista)
-    (if (null lista)
-        nil
-        (if (equal elemento (car lista) )
-            T
-            (pertenece elemento (cdr lista))
-        )
-    )
-)
-
-(defun algunElementoPertenece (elementos lista)
-    (if (null elementos)
-        T
-        (if (pertenece (car elementos) lista)
-            nil
-            (algunElementoPertenece (cdr elementos) lista )
-        )
-    )
-)
-
-(defun validarDiag (reinas nuevaReina n)
-    (algunElementoPertenece reinas (generarDiagonales nuevaReina n ) )
-)
-
+;Valida la nueva reina contra las ya existentes.
 (defun validarReinas (reinas nuevaReina n)
     (if (null reinas)
         T
-        (if (ListaValida (validarReinasColFil reinas NuevaReina ))
-            (validarDiag reinas nuevaReina n)
+        (if (validarReinaColFilDiag (car reinas) nuevaReina )
+            (validarReinas (cdr reinas) nuevaReina n) 
             nil
         )
     )
@@ -102,6 +36,7 @@
     )
 )
 
+;Busca un elemento para el cual se puede ir al siguiente, osea no sea la ultima columna
 (defun buscarLong2oMas (L N)
     (if (null L)
         nil
@@ -112,6 +47,7 @@
     )
 )
 
+;intenta agregar una reina de la lista de posibles reinas.
 (defun agregarReina (reinas nuevasReinas n)
     (if (null nuevasReinas)
         (cons nil reinas)
@@ -122,12 +58,13 @@
     )
 )
 
+;intenta agregar reinas hasta que tenga que volver para atras.
 (defun ReinasAux (N posreinas )
     (If (null (car posreinas))
         posreinas
         (if (eq (length posreinas) N) 
             posreinas
-	        (if (< (length posreinas) (caar posreinas))  ;me pase
+	        (if (< (length posreinas) (caar posreinas))
                 (cons nil posreinas)
                 (ReinasAux N (agregarReina posreinas (crearFila N (+(length posreinas) 1) ) N ) )
             )
@@ -135,16 +72,18 @@
     )
 )
 
+;crea el entorno para volver a agregar una reina cuando se descarta la elegida
 (defun reinasGoingBack (n posreinas)
     (agregarReina (cdr posreinas)  (crearFila N (caar posreinas) (+ (cadar posreinas) 1) ) n )
 )
 
+;Verifica si tiene que volver atras agregando las reinas, y descartar la ultima elegida.
 (defun checkIfHaveToGoBack (N posreinas )
-    (If (null (car posreinas))
+    (If (null (car posreinas)) ;tengo que volver atras
         (checkIfHaveToGoBack N (reinasGoingBack N  (buscarLong2oMas (cdr posreinas) N)))
-        (if (eq (length posreinas) N) 
+        (if (eq (length posreinas) N) ; Termine
             posreinas
-            (if (< (length posreinas) (caar posreinas))
+            (if (< (length posreinas) (caar posreinas)) ; No tengo posiblidad de llegar a las N reinas.
                 (checkIfHaveToGoBack N (reinasGoingBack N  (buscarLong2oMas (cdr posreinas) N)))
                 posreinas
             )
@@ -152,31 +91,18 @@
     )
 )
 
-(defun ReverseReinas (N &optional (posreinas (list (car (crearFila N))) ) )
+;Devuelve las reinas pero en orden inverso.
+(defun ReverseReinas (N &optional (posreinas '((1 1)) ) )
     (if (eq (length posreinas) N )  
         posreinas
         (ReverseReinas N (checkifhaveTogoBack N (ReinasAux N posreinas)))
     )
 )
 
+;Main function
 (defun Reinas (N )
     (print (reverse (ReverseReinas N )))
 )
 
-;(trace validarReinaColFil)
-;(trace agregarReina)
-;(trace reinas)
-;(trace reinasaux)
-;(trace checkIfHaveToGoBack)
-;(trace buscarLong2oMas)
-;(reinas 4)
-;(reinas 5)
-;(reinas 6)
-;(reinas 7)
-;(reinas 8)
-;(reinas 9)
-;(reinas 10)
+;Ejemplo de uso
 (reinas 13)
-;(reinas 14) ; empieza a tomarse mas tiempo
-;(reinas 17) ; maximo antes de overflow
-;(reinas 20)

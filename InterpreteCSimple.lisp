@@ -1,3 +1,8 @@
+; Problema : Interprete de C.
+; Lenguajes Formales - Primer Cuatrimestre 2010
+; Alumno : Bello Camilletti, Nicolás.
+; Padrón : 86676
+
 ;------ Validaciones -------
 (defun esVariable (var mem)
 	(pertenece_ListaPares var mem)
