@@ -105,4 +105,4 @@
 )
 
 ;Ejemplo de uso
-(reinas 13)
+(reinas 17)

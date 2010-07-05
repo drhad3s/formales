@@ -5,7 +5,7 @@
 
 (defun verif (P asoc E L)
     (if (eq asoc 'NohayAsoc)
-        (append (list P E) L)
+        (cons (list P E) L)
         (if (equal asoc E)
             L
             'NoMatchea
@@ -16,9 +16,9 @@
 (defun buscar (V L)
     (if (null L) 
         'NohayAsoc
-        (if (eq V (car L))
-            (cadr L)
-            (buscar v (cddr L))
+        (if (eq V (caar L))
+            (cadar L)
+            (buscar v (cdr L))
         )
     )
 )
@@ -78,17 +78,17 @@
 
 (test 'Var_Simple
     (PatternMat '(A) '( Hola) '(A) )
-    '(A HOLA)
+    '((A HOLA))
 )
 
 (test 'Var_Simple_Mezclado_Palabras
     (PatternMat '(A mundo) '( Hola mundo) '(A) )
-    '(A HOLA)
+    '((A HOLA))
 )
 
 (test 'Var_Doble_Mezclado_Palabras_Repetido
     (PatternMat '(A mundo A) '( Hola mundo Hola) '(A))
-    '(A HOLA)
+    '((A HOLA))
 )
 
 (test 'Var_Doble_Mezclado_Palabras_Repetido_No_matchea
@@ -98,14 +98,18 @@
 
 (test 'Var_Doble_Distinto_Mezclado_Palabras
     (PatternMat '(A mundo B) '( Hola mundo Chau) '(A B) )
-    '(B CHAU A HOLA)
+    '((B CHAU) (A HOLA))
 )
 
 (test 'Var_Triple_Con_Parentesis_Distinto_Mezclado_Palabras
     (PatternMat '((B y C) A ) '((hola y chau) mundo) '(A B C))
-    '(A MUNDO C CHAU B HOLA)
+    '((A MUNDO) (C CHAU) (B HOLA))
 )
 
 '(----- Fin tests -----)
+
+;Ejemplo de uso
+ (PatternMat '((B y C) A ) '((hola y chau) mundo) '(A B C))
+
 
 
