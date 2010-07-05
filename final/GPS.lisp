@@ -45,18 +45,18 @@
 
 ; obtiene todos los caminos posibles de i a f en el grafo
 (defun GPS (i f grafo &optional(caminos (list( list i))) )
-	(if (null caminos)
-		nil
-		(if (eq (caar caminos) f)
-			(cons (car caminos) (GPS i f grafo (cdr caminos) ) )
-			(GPS i f grafo (append (distribuir(car caminos)
+    (if (null caminos)
+        nil
+        (if (eq (caar caminos) f)
+            (cons (car caminos) (GPS i f grafo (cdr caminos) ) )
+            (GPS i f grafo (append (distribuir(car caminos)
                                 (diferencia (vecinos (caar caminos) grafo) (car caminos))
                              )
                             (cdr caminos)
                      )
             )
-		)
-	)
+        )
+    )
 )
 
 (defun obtenerMinimo (L)
@@ -176,13 +176,13 @@
 ; comprime el recorrido generando pares calle por la que va, cantidad de cuadras.
 (defun comprimirRecorrido (recorrido &optional (result nil) 
                                         ( actual (list (obtenerComunPrimeros recorrido) 0)) )
-	(if (null recorrido)
+    (if (null recorrido)
         (agregarAlFinal result actual)
         (if (equal (car actual) (obtenerComunPrimeros recorrido) ) ; en la proxima sigue en la misma calle
             (comprimirRecorrido (cdr recorrido) result (aumentarContadorCuadras actual) )
             (comprimirRecorrido (cdr recorrido) (agregarAlFinal result actual) (crearNuevoActual recorrido ))
         )
-	)
+    )
 )
 
 (defun armarDescripcion (actual)
@@ -191,16 +191,16 @@
 
 ; Genera la descripción del circuito basado en el recorrido comprimido
 (defun describir (rec &optional (desc nil))
-	(if (null rec)
+    (if (null rec)
         (append desc '(hasta llegar a destino.))
         (if (null desc)
             (describir (cdr rec) (list 'Tome (caar rec) 'y 'avance (cadar rec) 'cuadras.) )
             (if (eq (cadar rec) 1)
                 (describir (cdr rec) (append desc (list 'Doble 'en (caar rec) 'y 'avance 'una 'cuadra.) ) )
-		        (describir (cdr rec) (append desc (armarDescripcion (car rec)) ) )
+                (describir (cdr rec) (append desc (armarDescripcion (car rec)) ) )
             )
         )
-	)
+    )
 )
 
 (defun traducirRecorrido (rec diccionario)

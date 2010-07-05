@@ -64,7 +64,7 @@
         posreinas
         (if (eq (length posreinas) N) 
             posreinas
-	        (if (< (length posreinas) (caar posreinas))
+            (if (< (length posreinas) (caar posreinas))
                 (cons nil posreinas)
                 (ReinasAux N (agregarReina posreinas (crearFila N (+(length posreinas) 1) ) N ) )
             )

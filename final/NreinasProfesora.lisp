@@ -66,7 +66,7 @@
     )
 )
 
-(defun reinasaux (n posreinas)		
+(defun reinasaux (n posreinas)        
     (reinas n  (cons (cdar posreinas) (cdr posreinas)) (elimtodoslospares (cons (cadar posreinas)(mapcar 'car (cdr posreinas))) (tablero n)))
 )
 
