@@ -1,18 +1,41 @@
-(defun ListaArgEval (expr amb)
-	(if (null expr)
+; Problema : Lisp En Lisp.
+; Lenguajes Formales - Primer Cuatrimestre 2010
+; Alumno : Bello Camilletti, Nicolás.
+; Padrón : 86676
+
+
+;------------- Funciones para manejo del ambiente ------------
+;obtiene el valor del elemento en el ambiente, o nil si no está.
+(defun get_From_Env (elem env)
+	(if (or (null env) (null elem))
 		nil
-		(if (atom expr)
-			expr
-			(cons (evalTLC (car expr) amb) ( ListaArgEval ( cdr expr) amb ) )
+		(if (eq (caar env) elem)
+			(cadar env)
+			(get_From_Env elem (cdr env))
 		)
 	)
 )
 
-(defun ExtenderAmb (LP LA amb) 
-    (if (null LP)
-        amb
-        (append (list (car LP) (car LA)) (ExtenderAmb ( cdr LP)(cdr LA) amb ) )
-    )        
+;obtiene t si el elemento está en el ambiente, o nil en caso contrario.
+(defun is_In_Env (elem env)
+    (if (or (null env) (null elem))
+		nil
+		(if (eq (caar env) elem)
+			T
+			(is_In_Env elem (cdr env))
+		)
+	)
+)
+
+;agrega o reemplaza el valor de un elemento en el ambiente
+(defun replace_or_add (env param new_value)
+	(if (null env)
+		(list (list param new_value))
+		(if (eq (caar env) param)
+			(cons (list param new_value) (cdr env))
+			(cons (car env) (replace_or_add (cdr env) param new_value))
+		)
+	)
 )
 
 ;expande el ambiente
@@ -23,49 +46,23 @@
 	)
 )
 
-(defun replace_or_add (env param new_value)
-	(if (null env)
-		(list (list param new_value))
-		(if (eq (caar env) param)
-			(cons (list param new_value) (cdr env))
-			(cons (car env) (replace_or_add (cdr env) param new_value))
-		)
-	)
-)
-(defun aplicar (FN params amb)
-    (if (atom FN)
-        ( cond 
-            ((eq FN 'car) (caar params))
-            ((eq FN 'list ) params )
-            ((eq FN 'cdr ) (cdar params) )
-            ((eq FN 'cons ) (cons (car params) (cadr params)))
-        )
-        (evalTLC ( nth 2 FN) (ExtenderAmb (nth 1 FN) params amb ))
-    )
-)
+;------------- Fin Funciones para manejo del ambiente ------------
 
-;busca en el ambiente env el elemento elem
-;ambiente: ((var val) (var2 val2))
-(defun env_search (env elem)
-	(if (or (null env) (null elem))
-		nil
-		(if (eq (caar env) elem)
-			(cadar env)
-			(env_search (cdr env) elem)
-		)
-	)
+;------------- Funciones auxiliares para exec ------------
+
+;evalua una expresion quote
+;(quote expresion)
+(defun exec_quote (code)
+	(cadr code)
 )
 
 ;evalua una expresion que es un atomo
 ;atomo
 (defun exec_atom (the_atom env)
-	(if (numberp the_atom) 
-		the_atom
-		(if (eq the_atom 't)
-			t
-			(env_search env the_atom)
-		)
-	)
+    (if (is_In_Env the_atom env)			
+        (get_From_Env the_atom env)
+        the_atom
+    )
 )
 
 ;evalua una expresion or
@@ -110,13 +107,29 @@
 	(exec_cond_list (cdr code) env)
 )
 
-;obtiene los parametros de una llamada a una funcion
-;(fun val1 val2)
-;retorna (val1 val2)
-;(fun t)
-;retorna (t)
-(defun params (code)
-	(cdr code)
+;aplicacion de lambda
+;(caddar code): codigo a ejecutar
+;(cadar code): parametros de la fcn lambda
+;(cdr code): valores que toman los parametros de la funcion lambda
+;env: el ambiente actual
+(defun apply_lambda (code env)
+    (exec (caddar code) (expand_env env (cadar code) (cdr code)))
+)
+
+(defun esFuncion (code f)
+	(equal (car code) f)
+)
+
+(defun apply_Code (code)
+    (apply (car code) (cdr code))
+)
+
+;implementacion del mapcar
+(defun exec_Mapcar (f l env)
+	(if (null l)
+		nil
+		(cons (exec (list f (list 'quote (car l))) env) (exec_Mapcar  f (cdr l) env))
+	)
 )
 
 ;evalue la lista de argumentos de una funcion
@@ -134,78 +147,45 @@
 	(cons (car code) (eval_args_list (cdr code) env))
 )
 
-(defun exec (code &optional (env nil))
-	(if (null code)
-        nil
-	    (cond
-		    ;procesa atomos (numeros y variables de ambiente)
-		    ((atom code) (exec_atom code env))
-		    ;procesa el quote
-		    ((esFuncion code 'quote) (exec_quote code))
-		    ;procesa el or
-		    ((esFuncion code 'or) (exec_or code env))
-		    ;procesa el and
-		    ((esFuncion code 'and) (exec_and code env))
-		    ;procesa el if
-		    ((esFuncion code 'if) (exec_if code env))
-		    ;procesa cond
-		    ((esFuncion code 'cond) (exec_cond code env))
-		    ;procesa lambda functions
-		    ((esFuncion code 'lambda) (exec_lambda code env))
-		    ;procesa demas funciones
-		    (t (exec_fun (eval_args code env) env))
-	    )
-	)
-)
-
-(defun evalTLC (expr amb)
-	(if (null expr)
-		nil
-		(if (atom expr)
-			(if (numberp expr)
-				expr
-				(buscar expr amb)
-			)
-			( cond 
-				(( eq (car expr) 'quote) 
-					(nth 1 expr)
-				)
-				(( eq (car expr) 'and) 
-					( if (evalTLC (nth 1 expr) amb )
-						(evalTLC (nth 2 expr) amb)
-						nil
-					)
-				)
-				(( eq (car expr) 'or) 
-					( if (evalTLC (nth 1 expr) amb )
-						T
-						(evalTLC (nth 2 expr) amb)
-					)
-				)
-				(( eq (car expr) 'if) 
-					( if (evalTLC (nth 1 expr) amb )
-						(evalTLC (nth 2 expr) amb)
-						(evalTLC (nth 3 expr) amb)
-					)
-				)
-				(( eq (car expr) 'cons)
-					(cons (nth 1 expr) (nth 2 expr))
-				)
-                (( eq (car expr) 'lambda) 
-                    expr
-				)
-				( T
-					(aplicar    (evalTLC (car expr) amb) 
-                                (ListaArgEval (cdr expr) amb )
-                                (mapcar (lambda(x) (evalTLC x amb)) (cdr expr) ) 
-                    )
-				)
-			)
+(defun exec_fun (code env)
+	(if (atom (car code))
+		(cond
+			((esFuncion code 'nth) (nth (cadr code) (caddr code)))
+			((esFuncion code 'cons) (cons (cadr code) (caddr code)))
+			((esFuncion code 'append) (append (cadr code) (caddr code)))
+			((esFuncion code 'apply) (apply (cadr code) (caddr code)))
+			((esFuncion code 'mapcar) (exec_Mapcar (cadr code) (caddr code) env))
+            ;buscar en el ambiente por si hay una funcion con el nombre 'car code'
+            ((is_In_Env (car code) env) (exec (cons (get_From_Env (car code) env) (cdr code)) env))
+            (t (apply_Code code)); caso contrario ejecuta con la función que venga de nombre, y los parametros siguiente.
+		)
+		(cond
+			;procesamos lambda
+			((esFuncion (car code) 'lambda) (apply_lambda code env))
+			;que queda?
+			(t nil)
 		)
 	)
 )
 
-;testing function
+;evalua una expresion lisp
+(defun exec (code &optional (env nil))
+	(if (null code) nil
+		(cond
+			((atom code) (exec_atom code env))
+			((esFuncion code 'quote) (exec_quote code))
+			((esFuncion code 'or) (exec_or code env))
+			((esFuncion code 'and) (exec_and code env))
+			((esFuncion code 'if) (exec_if code env))
+			((esFuncion code 'cond) (exec_cond code env))
+			((esFuncion code 'lambda) code )
+			(t (exec_fun (eval_args code env) env))
+		)
+	)
+)
+
+'(--------- Tests ----------)
+;testing function(cons (exec (list f (list 'quote (car l))) env) (exec_Mapcar  f (cdr l) env))
 ;=============================
 (defun test (name actual expected)
     (if (equal actual expected)
@@ -216,8 +196,10 @@
 ;=============================
 
 ;numeros
-(test 'numero1 (exec '1) '1)
-(test 'numero2 (exec '2) '2)
+(test 'numero (exec '2) '2)
+
+;letras
+(test 'letra (exec 'A) 'A)
 
 ;true false
 (test 'tf1 (exec nil) nil)
@@ -232,6 +214,7 @@
 (test 'quote1 (exec '(quote A) ) 'A)
 (test 'quote2 (exec '(quote 1) ) '1)
 (test 'quote3 (exec '(quote (car a)) ) '(car a))
+(test 'quote4 (exec '(quote ((2 3) (4 5))) ) '((2 3) (4 5)) )
 
 ;or
 (test 'or1 (exec '(or t t) ) 't)
@@ -258,8 +241,10 @@
 ;cond
 (test 'cond1 (exec '(cond (t 2) )) '2)
 (test 'cond2 (exec '(cond (nil 5) (t 2) )) '2)
-(test 'cond3 (exec '(cond (and (nil nil) 5) (t 2) )) '2)
-(test 'cond4 (exec '(cond (and (nil nil) 5) (nil 99) (t 2) )) '2)
+(test 'cond3 (exec '(cond ((and nil nil) 5) (t 2) )) '2)
+(test 'cond4 (exec '(cond ((and nil nil) 5) (nil 99) (t 2) )) '2)
+(test 'cond5 (exec '(cond (nil 99) ((and t t) 5) (t 2) )) '5)
+(test 'cond6 (exec '(cond ((and t t) 5) (nil 99)  (t 2) )) '5)
 
 ;list
 (test 'list1 (exec '(list 2 3 4)) '(2 3 4))
@@ -275,6 +260,7 @@
 ;car
 (test 'car1 (exec '(car (quote (2 3)))) '2)
 (test 'car2 (exec '(car (quote (4 2 3)))) '4)
+(test 'car3 (exec '(car (quote ( (2 3) (4 5))))) '(2 3))
 
 ;cdr
 (test 'cdr1 (exec '(cdr (quote (4 2 3)))) '(2 3))
@@ -365,10 +351,10 @@
 ;mapcar
 (test 'mapcar1 (exec '(mapcar 'numberp (quote (4)))) '(t))
 (test 'mapcar2 (exec '(mapcar 'numberp (quote (4 5 6 nil)))) '(t t t nil))
-(test 'mapcar3 (exec '(mapcar 'car (quote ( (2 3) (4 5 ))))) '(2 4))
+(test 'mapcar3 (exec '(mapcar 'car (quote ( (2 3) (4 5 ))) )) '(2 4))
 
 ;reverse
-(test 'reverse2 (exec '(reverse (quote (4 5 6 7)))) '(7 6 5 4))
+(test 'reverse (exec '(reverse (quote (4 5 6 7)))) '(7 6 5 4))
 
 ;===========
 ;funcionales
