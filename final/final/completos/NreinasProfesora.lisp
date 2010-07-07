@@ -20,7 +20,7 @@
     (if (null tab)
         nil
         (cons (eliminarColumna elemento (car tab) ) 
-            (eliminaPorFila elemento (cdr tab))
+               (eliminaPorFila elemento (cdr tab))
         )
     )
 )
@@ -66,7 +66,7 @@
     )
 )
 
-(defun reinasaux (n posreinas)
+(defun reinasaux (n posreinas)        
     (reinas n  (cons (cdar posreinas) (cdr posreinas)) (elimtodoslospares (cons (cadar posreinas)(mapcar 'car (cdr posreinas))) (tablero n)))
 )
 
@@ -74,9 +74,9 @@
     (if (eq (length posreinas) n)
         (reverse (mapcar 'car posreinas))
         (if (< (+ (length posreinas) (length tab)) n) ; No tengo posiblidad de llegar a las N reinas.
-            (reinasaux n  (buscarlong2omas posreinas))
+            (reinasaux n  (buscarlong2omas posreinas))    
             (if (null tab) 
-                (reinasaux n (buscarlong2omas posreinas))
+                (reinasaux n (buscarlong2omas posreinas))  
                 (reinas n (cons (car tab) posreinas) (elimtodoslospares (list (caar tab)) tab))
             )
         )

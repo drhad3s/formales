@@ -64,7 +64,7 @@
         posreinas
         (if (eq (length posreinas) N) 
             posreinas
-	        (if (< (length posreinas) (caar posreinas))
+            (if (< (length posreinas) (caar posreinas))
                 (cons nil posreinas)
                 (ReinasAux N (agregarReina posreinas (crearFila N (+(length posreinas) 1) ) N ) )
             )
@@ -93,7 +93,7 @@
 
 ;Devuelve las reinas pero en orden inverso.
 (defun ReverseReinas (N &optional (posreinas '((1 1)) ) )
-    (if (eq (length posreinas) N )  
+    (if (eq (length posreinas) N )
         posreinas
         (ReverseReinas N (checkifhaveTogoBack N (ReinasAux N posreinas)))
     )
@@ -101,7 +101,7 @@
 
 ;Main function
 (defun Reinas (N )
-    (print (reverse (ReverseReinas N )))
+    (reverse (ReverseReinas N ))
 )
 
 ;Ejemplo de uso

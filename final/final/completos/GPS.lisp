@@ -212,14 +212,14 @@
 (setq grafoTest '((a(b c)) (b(a e d)) (c(a d e)) (d(b c e)) (e(e b d)) ) )
 
 (setq diccionarioTest '(
-        (a (PaseoColon Independencia))
-        (b (PaseoColon Chile))
-        (f (Independencia Balcarse))
-        (g (Independencia Defensa))
-        (h (Defensa Chile))
-        (k (Defensa Balcarse ))
-        (l (Belgrano Balcarse) )
-    )
+                        (a (PaseoColon Independencia))
+                        (b (PaseoColon Chile))
+                        (f (Independencia Balcarse))
+                        (g (Independencia Defensa))
+                        (h (Defensa Chile))
+                        (k (Defensa Balcarse ))
+                        (l (Belgrano Balcarse) )
+                   ) 
 )
 
 (defun test (name a e)
@@ -241,30 +241,30 @@
     '(a c)
 )
 
-(test 'diferenciaMoreElements
-    (diferencia '(a b c) '(a c))
+(test 'diferenciaMoreElements 
+    (diferencia '(a b c) '(a c)) 
     '(b)
 )
 
 '(---------)
 
 (test 'obtenerMinimoEqualsAndNil 
-    (obtenerMinimo '((a) (b) nil (c)) )
+    (obtenerMinimo '((a) (b) nil (c)) ) 
     '(c)
 )
 
 (test 'obtenerMinimoLast 
-    (obtenerMinimo '((a b c) (a b)) )
+    (obtenerMinimo '((a b c) (a b)) ) 
     '(a b)
 )
 
 (test 'obtenerMinimoFirst 
-    (obtenerMinimo '((a b) (a b c)) )
+    (obtenerMinimo '((a b) (a b c)) ) 
     '(a b)
 ) 
 
 (test 'obtenerMinimoMiddle 
-    (obtenerMinimo '((a b c) (a b) (a b c d)) )
+    (obtenerMinimo '((a b c) (a b) (a b c d)) ) 
     '(a b)
 )
 
@@ -396,19 +396,19 @@
 )
 
 (setq diccionario '(
-        (a (PaseoColon Independencia))
-        (b (PaseoColon Chile))
-        (c (PaseoColon Mexico ))
-        (d (PaseoColon Venezuela))
-        (e (PaseoColon Belgrano))
-        (f (Independencia Balcarse))
-        (g (Independencia Defensa))
-        (h (Defensa Chile))
-        (i (Defensa Mexico))
-        (j (Defensa Venezuela))
-        (k (Defensa Balcarse ))
-        (l (Belgrano Balcarse) )
-    )
+                        (a (PaseoColon Independencia))
+                        (b (PaseoColon Chile))
+                        (c (PaseoColon Mexico ))
+                        (d (PaseoColon Venezuela))
+                        (e (PaseoColon Belgrano))
+                        (f (Independencia Balcarse))
+                        (g (Independencia Defensa))
+                        (h (Defensa Chile))
+                        (i (Defensa Mexico))
+                        (j (Defensa Venezuela))
+                        (k (Defensa Balcarse ))
+                        (l (Belgrano Balcarse) )
+                   ) 
 )
 
 (GPS (codificador '(PaseoColon Independencia) diccionario) 

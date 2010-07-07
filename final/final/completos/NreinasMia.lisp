@@ -93,7 +93,7 @@
 
 ;Devuelve las reinas pero en orden inverso.
 (defun ReverseReinas (N &optional (posreinas '((1 1)) ) )
-    (if (eq (length posreinas) N )
+    (if (eq (length posreinas) N )  
         posreinas
         (ReverseReinas N (checkifhaveTogoBack N (ReinasAux N posreinas)))
     )
@@ -101,7 +101,7 @@
 
 ;Main function
 (defun Reinas (N )
-    (reverse (ReverseReinas N ))
+    (print (reverse (ReverseReinas N )))
 )
 
 ;Ejemplo de uso

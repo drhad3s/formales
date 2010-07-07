@@ -340,7 +340,7 @@
             ( (esFuncion prg 'repeat_aux) (procesar_repeat_aux prg mem entrada salida) )
             ( (esFuncion prg 'repeat) (procesar_repeat prg mem entrada salida) )
             ( (esFuncion prg 'for) (procesar_for prg mem entrada salida) ) 
-            ( t (list 'syntax_error (car prg)) )    
+            ( t (list 'syntax_error (car prg)) )
         )
     )
 )

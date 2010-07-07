@@ -59,7 +59,7 @@
 ;evalua una expresion que es un atomo
 ;atomo
 (defun exec_atom (the_atom env)
-    (if (is_In_Env the_atom env)
+    (if (is_In_Env the_atom env)            
         (get_From_Env the_atom env)
         the_atom
     )

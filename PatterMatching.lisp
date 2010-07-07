@@ -111,5 +111,3 @@
 ;Ejemplo de uso
  (PatternMat '((B y C) A ) '((hola y chau) mundo) '(A B C))
 
-
-
